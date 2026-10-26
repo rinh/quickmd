@@ -14,6 +14,18 @@ import WebKit
 /// the height is seeded from BlockHeightCache (no scroll jump).
 ///
 /// Clicking the diagram opens a window-filling preview with pinch/button zoom.
+
+/// Settings ▸ General ▸ Mermaid: the template's polished style (Mermaid's
+/// `base` theme with Tailwind colours, see mermaid-template.html) or plain
+/// Mermaid `default` / `dark`. On unless the reader turned it off.
+enum MermaidStyle {
+    static let defaultsKey = "mermaidPolishedStyle"
+
+    static var isPolished: Bool {
+        UserDefaults.standard.object(forKey: defaultsKey) as? Bool ?? true
+    }
+}
+
 /// Shared store of rendered-diagram snapshots, keyed by (isDark, source).
 /// Written by the inline MermaidBlockView after each successful render; read
 /// back by MermaidBlockView on LazyVStack re-creation AND by the PDF exporter
@@ -22,8 +34,10 @@ import WebKit
 enum MermaidSnapshotStore {
     private static let cache = NSCache<NSString, NSImage>()
 
+    /// The style is part of the key: switching it in Settings must not bring
+    /// back pictures drawn in the other one.
     private static func key(source: String, isDark: Bool) -> NSString {
-        "\(isDark)|\(source)" as NSString
+        "\(isDark)|\(MermaidStyle.isPolished)|\(source)" as NSString
     }
 
     static func image(source: String, isDark: Bool) -> NSImage? {
@@ -49,6 +63,7 @@ struct MermaidBlockView: View {
 
     private var snapshotKey: String { "\(fontScale)|\(contentWidth)|\(source)" }
     @State private var isHovered = false
+    @AppStorage(MermaidStyle.defaultsKey) private var polishedStyle = true
 
     /// Padding, corner radius and the un-measured default height — see
     /// `BlockLayout.Mermaid` (shared with `BlockHeightMeasurer`).
@@ -85,6 +100,7 @@ struct MermaidBlockView: View {
                         source: source,
                         isDark: theme.isDark,
                         fontScale: fontScale,
+                        polished: polishedStyle,
                         diagramHeight: $diagramHeight,
                         onHeight: { height in
                             heightCache.set(height, for: blockId)
@@ -130,6 +146,11 @@ struct MermaidBlockView: View {
             .padding(6)
         }
         .padding(.vertical, Metrics.verticalPadding)
+        .onChange(of: polishedStyle) { _ in
+            // The store's key follows the style: nil here means the web view
+            // below draws it again in the new one.
+            snapshot = MermaidSnapshotStore.image(source: snapshotKey, isDark: theme.isDark)
+        }
         .onHover { hovering in
             isHovered = hovering
         }
@@ -239,7 +260,7 @@ private struct ZoomableMermaidWebView: NSViewRepresentable {
                 """, completionHandler: nil)
             guard let data = try? JSONSerialization.data(withJSONObject: source, options: [.fragmentsAllowed]),
                   let jsLiteral = String(data: data, encoding: .utf8) else { return }
-            webView.evaluateJavaScript("renderDiagram(\(jsLiteral), \(isDark ? "true" : "false"), 1, true);",
+            webView.evaluateJavaScript("renderDiagram(\(jsLiteral), \(isDark ? "true" : "false"), 1, true, \(MermaidStyle.isPolished));",
                                        completionHandler: nil)
         }
     }
@@ -262,6 +283,7 @@ private struct MermaidWebView: NSViewRepresentable {
     let source: String
     let isDark: Bool
     let fontScale: CGFloat
+    let polished: Bool
     @Binding var diagramHeight: CGFloat
     let onHeight: (CGFloat) -> Void
     let onSnapshot: (NSImage) -> Void
@@ -290,7 +312,8 @@ private struct MermaidWebView: NSViewRepresentable {
         // Avoid re-rendering if content hasn't changed
         if context.coordinator.lastSource == source,
            context.coordinator.lastIsDark == isDark,
-           context.coordinator.parent.fontScale == fontScale {
+           context.coordinator.parent.fontScale == fontScale,
+           context.coordinator.parent.polished == polished {
             return
         }
         context.coordinator.parent = self
@@ -322,7 +345,7 @@ private struct MermaidWebView: NSViewRepresentable {
             guard templateLoaded, let source = lastSource, let isDark = lastIsDark else { return }
             guard let data = try? JSONSerialization.data(withJSONObject: source, options: [.fragmentsAllowed]),
                   let jsLiteral = String(data: data, encoding: .utf8) else { return }
-            webView.evaluateJavaScript("renderDiagram(\(jsLiteral), \(isDark ? "true" : "false"), \(parent.fontScale));",
+            webView.evaluateJavaScript("renderDiagram(\(jsLiteral), \(isDark ? "true" : "false"), \(parent.fontScale), false, \(parent.polished));",
                                        completionHandler: nil)
         }
 

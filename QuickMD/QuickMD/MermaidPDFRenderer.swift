@@ -118,7 +118,8 @@ private final class OffscreenMermaidRender: NSObject, WKNavigationDelegate, WKSc
             finish(nil)
             return
         }
-        webView.evaluateJavaScript("renderDiagram(\(jsLiteral), false);", completionHandler: nil)
+        webView.evaluateJavaScript("renderDiagram(\(jsLiteral), false, 1, false, \(MermaidStyle.isPolished));",
+                                   completionHandler: nil)
     }
 
     func userContentController(_ controller: WKUserContentController,

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Reload** (⌘R, View ▸ Reload, or the ↻ button in the top-right cluster): re-reads the document from disk now and restarts the file watcher, for the times auto-reload does not notice a change (some network volumes and editors' save strategies). A toast says whether anything changed; a file that is gone shows the "File no longer exists" banner. Off while Source Edit shows, where the editor already follows the disk.
+- **Polished Mermaid style** (Settings ▸ General ▸ Mermaid, on by default): Mermaid's `base` theme with Tailwind colours — soft fills with a darker border of the same hue, slate text and lines, amber decisions, rounded corners, dashed subgraphs, a matching pie palette — with a dark variant. Applies inline, in the zoom preview and in PDF export. A diagram's own `%%{init}%%`, `classDef` and `style` still take precedence; turning it off restores Mermaid's default and dark themes.
 
 ## [1.12.0] - 2026-10-05
 

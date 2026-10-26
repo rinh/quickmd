@@ -18,19 +18,99 @@
     if (resizeDiagram) resizeDiagram();
   });
 
-  function renderDiagram(source, isDark, scale = 1, fitWindow = false) {
+  // "Polished" style (Settings ▸ General ▸ Mermaid): Mermaid's `base` theme
+  // with Tailwind colours — light fills with a darker border of the same hue,
+  // slate text and lines, amber decisions, rounded corners. Only defaults: a
+  // diagram's own %%{init}%%, classDef and style lines still win (themeCSS
+  // below uses no !important, and classDef styles are inline or !important).
+  var FONT = '-apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif';
+
+  var POLISHED_LIGHT = {
+    darkMode: false,
+    useGradient: false,
+    fontFamily: FONT,
+    fontSize: '14px',
+    background: 'transparent',
+    primaryColor: '#dbeafe', primaryBorderColor: '#2563eb', primaryTextColor: '#0f172a',
+    secondaryColor: '#dcfce7', secondaryBorderColor: '#16a34a', secondaryTextColor: '#0f172a',
+    tertiaryColor: '#f8fafc', tertiaryBorderColor: '#cbd5e1', tertiaryTextColor: '#0f172a',
+    lineColor: '#64748b', textColor: '#0f172a',
+    clusterBkg: '#f8fafc', clusterBorder: '#94a3b8',
+    edgeLabelBackground: '#ffffff',
+    noteBkgColor: '#fef3c7', noteBorderColor: '#d97706', noteTextColor: '#0f172a',
+    actorBkg: '#dbeafe', actorBorder: '#2563eb', actorTextColor: '#0f172a', actorLineColor: '#cbd5e1',
+    signalColor: '#475569', signalTextColor: '#0f172a',
+    labelBoxBkgColor: '#f1f5f9', labelBoxBorderColor: '#94a3b8', labelTextColor: '#0f172a',
+    loopTextColor: '#0f172a', activationBkgColor: '#eff6ff', activationBorderColor: '#2563eb',
+    pie1: '#60a5fa', pie2: '#4ade80', pie3: '#fbbf24', pie4: '#f87171', pie5: '#a78bfa',
+    pie6: '#22d3ee', pie7: '#f472b6', pie8: '#a3e635', pieStrokeColor: '#ffffff',
+    pieOuterStrokeColor: '#e2e8f0', pieOuterStrokeWidth: '1px',
+    pieTitleTextColor: '#0f172a', pieSectionTextColor: '#0f172a', pieLegendTextColor: '#0f172a'
+  };
+
+  var POLISHED_DARK = {
+    darkMode: true,
+    useGradient: false,
+    fontFamily: FONT,
+    fontSize: '14px',
+    background: 'transparent',
+    primaryColor: '#1e3a8a', primaryBorderColor: '#60a5fa', primaryTextColor: '#e2e8f0',
+    secondaryColor: '#14532d', secondaryBorderColor: '#4ade80', secondaryTextColor: '#e2e8f0',
+    tertiaryColor: '#1e293b', tertiaryBorderColor: '#475569', tertiaryTextColor: '#e2e8f0',
+    lineColor: '#94a3b8', textColor: '#e2e8f0',
+    clusterBkg: '#1e293b', clusterBorder: '#64748b',
+    edgeLabelBackground: '#0f172a',
+    noteBkgColor: '#451a03', noteBorderColor: '#f59e0b', noteTextColor: '#fef3c7',
+    actorBkg: '#1e3a8a', actorBorder: '#60a5fa', actorTextColor: '#e2e8f0', actorLineColor: '#475569',
+    signalColor: '#cbd5e1', signalTextColor: '#e2e8f0',
+    labelBoxBkgColor: '#1e293b', labelBoxBorderColor: '#64748b', labelTextColor: '#e2e8f0',
+    loopTextColor: '#e2e8f0', activationBkgColor: '#172554', activationBorderColor: '#60a5fa',
+    pie1: '#3b82f6', pie2: '#22c55e', pie3: '#f59e0b', pie4: '#ef4444', pie5: '#8b5cf6',
+    pie6: '#06b6d4', pie7: '#ec4899', pie8: '#84cc16', pieStrokeColor: '#0f172a',
+    pieOuterStrokeColor: '#334155', pieOuterStrokeWidth: '1px',
+    pieTitleTextColor: '#e2e8f0', pieSectionTextColor: '#f8fafc', pieLegendTextColor: '#e2e8f0'
+  };
+
+  function polishedCSS(isDark) {
+    var decisionFill = isDark ? '#451a03' : '#fef3c7';
+    var decisionStroke = isDark ? '#f59e0b' : '#d97706';
+    return '.node rect { rx: 6px; ry: 6px; }' +
+      '.node polygon { fill: ' + decisionFill + '; stroke: ' + decisionStroke + '; }' +
+      '.flowchart-link { stroke-width: 1.5px; }' +
+      '.cluster rect { rx: 8px; ry: 8px; stroke-dasharray: 4 3; }' +
+      '.edgeLabel { font-size: 12px; }' +
+      '.actor { rx: 6px; ry: 6px; }';
+  }
+
+  function mermaidConfig(isDark, polished) {
+    var config = {
+      startOnLoad: false,
+      securityLevel: 'strict',
+      fontFamily: FONT
+    };
+    if (polished) {
+      config.theme = 'base';
+      config.themeVariables = isDark ? POLISHED_DARK : POLISHED_LIGHT;
+      config.themeCSS = polishedCSS(isDark);
+      config.flowchart = { curve: 'basis', padding: 16 };
+    } else {
+      // Explicitly empty: initialize() runs again on this page when the
+      // setting changes, and nothing of the polished style may linger.
+      config.theme = isDark ? 'dark' : 'default';
+      config.themeVariables = {};
+      config.themeCSS = '';
+    }
+    return config;
+  }
+
+  function renderDiagram(source, isDark, scale = 1, fitWindow = false, polished = false) {
     // renderDiagram may run repeatedly on this page (theme switches re-render
     // in place). mermaid.render can leave its temp element behind after a
     // failed render — remove it or the next render throws on a duplicate id.
     var stale = document.getElementById('ddiagram');
     if (stale) stale.remove();
 
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: isDark ? 'dark' : 'default',
-      securityLevel: 'strict',
-      fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
-    });
+    mermaid.initialize(mermaidConfig(isDark, polished));
 
     const container = document.getElementById('output');
     resizeDiagram = null;
