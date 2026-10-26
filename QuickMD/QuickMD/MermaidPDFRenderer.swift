@@ -31,8 +31,10 @@ final class MermaidPDFRenderer {
             }
             let remaining = deadline.timeIntervalSinceNow
             guard remaining > 1 else { continue }
+            // mmdc starts a Chromium per diagram: more time than mermaid.js.
+            let perDiagram: TimeInterval = MermaidCLI.isEnabled ? 15 : 8
             if let image = await renderOffscreen(source: source, width: width,
-                                                 timeout: min(8, remaining)) {
+                                                 timeout: min(perDiagram, remaining)) {
                 result[source] = image
                 MermaidSnapshotStore.set(image, source: source, isDark: false)
             }
@@ -86,6 +88,7 @@ private final class OffscreenMermaidRender: NSObject, WKNavigationDelegate, WKSc
     func start() {
         let config = WKWebViewConfiguration()
         config.userContentController.add(self, name: "mermaidHeight")
+        MermaidCLIBridge.install(in: config)
 
         let webView = WKWebView(frame: NSRect(x: 0, y: 0, width: width, height: 600),
                                 configuration: config)
@@ -118,7 +121,8 @@ private final class OffscreenMermaidRender: NSObject, WKNavigationDelegate, WKSc
             finish(nil)
             return
         }
-        webView.evaluateJavaScript("renderDiagram(\(jsLiteral), false);", completionHandler: nil)
+        webView.evaluateJavaScript("renderDiagram(\(jsLiteral), false, 1, false, \(MermaidCLI.isEnabled));",
+                                   completionHandler: nil)
     }
 
     func userContentController(_ controller: WKUserContentController,

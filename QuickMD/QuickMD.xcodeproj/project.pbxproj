@@ -94,6 +94,7 @@
 		A1B2C3D4010000E1 /* HTMLImageSyntax.swift in Sources (Tests) */ = {isa = PBXBuildFile; fileRef = A1B2C3D4000000E0 /* HTMLImageSyntax.swift */; };
 		A1B2C3D4010000E2 /* HTMLImageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4000000E1 /* HTMLImageTests.swift */; };
 		A1B2C3D40100004D /* FileWatchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D400000049 /* FileWatchManager.swift */; };
+		F0F0F0F001000001 /* MermaidCLI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F0F0F000000001 /* MermaidCLI.swift */; };
 		A1B2C3D40100004E /* ExternalEditorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000004A /* ExternalEditorManager.swift */; };
 		A1B2C3D40100004F /* ExternalEditorPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000004B /* ExternalEditorPickerView.swift */; };
 		A1B2C3D401000050 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000004C /* SettingsView.swift */; };
@@ -260,6 +261,7 @@
 		A1B2C3D4000000E0 /* HTMLImageSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLImageSyntax.swift; sourceTree = "<group>"; };
 		A1B2C3D4000000E1 /* HTMLImageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLImageTests.swift; sourceTree = "<group>"; };
 		A1B2C3D400000049 /* FileWatchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWatchManager.swift; sourceTree = "<group>"; };
+		F0F0F0F000000001 /* MermaidCLI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MermaidCLI.swift; sourceTree = "<group>"; };
 		A1B2C3D40000004A /* ExternalEditorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalEditorManager.swift; sourceTree = "<group>"; };
 		A1B2C3D40000004B /* ExternalEditorPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalEditorPickerView.swift; sourceTree = "<group>"; };
 		A1B2C3D40000004C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -355,6 +357,7 @@
 				A1B2C3D4000000A0 /* InlineSyntaxScanner.swift */,
 				A1B2C3D4000000E0 /* HTMLImageSyntax.swift */,
 				A1B2C3D400000049 /* FileWatchManager.swift */,
+				F0F0F0F000000001 /* MermaidCLI.swift */,
 				A1B2C3D40000004A /* ExternalEditorManager.swift */,
 				A1B2C3D403000004 /* Views */,
 				A1B2C3D403000005 /* SwiftMath */,
@@ -619,6 +622,7 @@
 				A1B2C3D4010000A0 /* InlineSyntaxScanner.swift in Sources */,
 				A1B2C3D4010000E0 /* HTMLImageSyntax.swift in Sources */,
 				A1B2C3D40100004D /* FileWatchManager.swift in Sources */,
+				F0F0F0F001000001 /* MermaidCLI.swift in Sources */,
 				A1B2C3D40100004E /* ExternalEditorManager.swift in Sources */,
 				A1B2C3D40100004F /* ExternalEditorPickerView.swift in Sources */,
 				A1B2C3D401000050 /* SettingsView.swift in Sources */,
@@ -840,7 +844,7 @@
 				CURRENT_PROJECT_VERSION = 24;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = VJ92852M32;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
@@ -884,7 +888,7 @@
 				CURRENT_PROJECT_VERSION = 24;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = VJ92852M32;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;

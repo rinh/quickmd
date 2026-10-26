@@ -40,9 +40,71 @@ struct GeneralSettingsView: View {
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
                 }
+                #if !APPSTORE
+                MermaidRendererSection()
+                #endif
             }
             .formStyle(.grouped)
         }
         .frame(width: 360, height: 420)
     }
 }
+
+#if !APPSTORE
+/// Settings ▸ General ▸ Mermaid: the bundled mermaid.js, or the reader's own
+/// mmdc (MermaidCLI.swift). Not in the Mac App Store build — the sandbox does
+/// not let it run mmdc.
+private struct MermaidRendererSection: View {
+    @AppStorage(MermaidCLI.rendererKey) private var renderer = MermaidCLI.Renderer.builtIn.rawValue
+    @AppStorage(MermaidCLI.pathKey) private var mmdcPath = ""
+    @AppStorage(MermaidCLI.configPathKey) private var configPath = ""
+    @State private var status: String?
+    @State private var isChecking = false
+
+    var body: some View {
+        Section {
+            Picker("Renderer", selection: $renderer) {
+                ForEach(MermaidCLI.Renderer.allCases) { choice in
+                    Text(choice.title).tag(choice.rawValue)
+                }
+            }
+            if renderer == MermaidCLI.Renderer.mmdc.rawValue {
+                TextField("mmdc path", text: $mmdcPath, prompt: Text("Automatic"))
+                TextField("Config file", text: $configPath, prompt: Text("None (-c config.json)"))
+                HStack {
+                    Button("Test mmdc") { check() }
+                        .disabled(isChecking)
+                    if isChecking { ProgressView().controlSize(.small) }
+                }
+                if let status {
+                    Text(status)
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                        .textSelection(.enabled)
+                }
+            }
+        } header: {
+            Text("Mermaid")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(.secondary)
+        } footer: {
+            Text("mmdc draws each diagram with your installed mermaid-cli (about a second per diagram, cached afterwards). If it fails, the built-in renderer is used.")
+                .font(.system(size: 11))
+                .foregroundColor(.secondary)
+        }
+    }
+
+    private func check() {
+        isChecking = true
+        status = nil
+        DispatchQueue.global(qos: .userInitiated).async {
+            MermaidCLI.resetDiscovery()
+            let text = MermaidCLI.statusDescription()
+            DispatchQueue.main.async {
+                status = text
+                isChecking = false
+            }
+        }
+    }
+}
+#endif

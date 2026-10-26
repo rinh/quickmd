@@ -22,8 +22,10 @@ import WebKit
 enum MermaidSnapshotStore {
     private static let cache = NSCache<NSString, NSImage>()
 
+    /// The renderer is part of the key: switching it in Settings must not
+    /// bring back the other renderer's pictures.
     private static func key(source: String, isDark: Bool) -> NSString {
-        "\(isDark)|\(source)" as NSString
+        "\(isDark)|\(MermaidCLI.isEnabled ? "mmdc" : "js")|\(source)" as NSString
     }
 
     static func image(source: String, isDark: Bool) -> NSImage? {
@@ -49,6 +51,7 @@ struct MermaidBlockView: View {
 
     private var snapshotKey: String { "\(fontScale)|\(contentWidth)|\(source)" }
     @State private var isHovered = false
+    @AppStorage(MermaidCLI.rendererKey) private var renderer = MermaidCLI.Renderer.builtIn.rawValue
 
     /// Padding, corner radius and the un-measured default height — see
     /// `BlockLayout.Mermaid` (shared with `BlockHeightMeasurer`).
@@ -85,6 +88,7 @@ struct MermaidBlockView: View {
                         source: source,
                         isDark: theme.isDark,
                         fontScale: fontScale,
+                        useCLI: renderer == MermaidCLI.Renderer.mmdc.rawValue,
                         diagramHeight: $diagramHeight,
                         onHeight: { height in
                             heightCache.set(height, for: blockId)
@@ -130,6 +134,11 @@ struct MermaidBlockView: View {
             .padding(6)
         }
         .padding(.vertical, Metrics.verticalPadding)
+        .onChange(of: renderer) { _ in
+            // The store's key follows the renderer: nil here means the web
+            // view below draws it again with the new one.
+            snapshot = MermaidSnapshotStore.image(source: snapshotKey, isDark: theme.isDark)
+        }
         .onHover { hovering in
             isHovered = hovering
         }
@@ -207,7 +216,9 @@ private struct ZoomableMermaidWebView: NSViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator() }
 
     func makeNSView(context: Context) -> WKWebView {
-        let webView = WKWebView(frame: .zero)
+        let config = WKWebViewConfiguration()
+        MermaidCLIBridge.install(in: config)
+        let webView = WKWebView(frame: .zero, configuration: config)
         webView.allowsMagnification = true
         webView.setValue(false, forKey: "drawsBackground")
         webView.navigationDelegate = context.coordinator
@@ -239,7 +250,7 @@ private struct ZoomableMermaidWebView: NSViewRepresentable {
                 """, completionHandler: nil)
             guard let data = try? JSONSerialization.data(withJSONObject: source, options: [.fragmentsAllowed]),
                   let jsLiteral = String(data: data, encoding: .utf8) else { return }
-            webView.evaluateJavaScript("renderDiagram(\(jsLiteral), \(isDark ? "true" : "false"), 1, true);",
+            webView.evaluateJavaScript("renderDiagram(\(jsLiteral), \(isDark ? "true" : "false"), 1, true, \(MermaidCLI.isEnabled));",
                                        completionHandler: nil)
         }
     }
@@ -262,6 +273,7 @@ private struct MermaidWebView: NSViewRepresentable {
     let source: String
     let isDark: Bool
     let fontScale: CGFloat
+    let useCLI: Bool
     @Binding var diagramHeight: CGFloat
     let onHeight: (CGFloat) -> Void
     let onSnapshot: (NSImage) -> Void
@@ -269,6 +281,7 @@ private struct MermaidWebView: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.userContentController.add(context.coordinator, name: "mermaidHeight")
+        MermaidCLIBridge.install(in: config)
 
         let webView = ScrollPassthroughWebView(frame: .zero, configuration: config)
         webView.setValue(false, forKey: "drawsBackground")
@@ -290,7 +303,8 @@ private struct MermaidWebView: NSViewRepresentable {
         // Avoid re-rendering if content hasn't changed
         if context.coordinator.lastSource == source,
            context.coordinator.lastIsDark == isDark,
-           context.coordinator.parent.fontScale == fontScale {
+           context.coordinator.parent.fontScale == fontScale,
+           context.coordinator.parent.useCLI == useCLI {
             return
         }
         context.coordinator.parent = self
@@ -322,7 +336,7 @@ private struct MermaidWebView: NSViewRepresentable {
             guard templateLoaded, let source = lastSource, let isDark = lastIsDark else { return }
             guard let data = try? JSONSerialization.data(withJSONObject: source, options: [.fragmentsAllowed]),
                   let jsLiteral = String(data: data, encoding: .utf8) else { return }
-            webView.evaluateJavaScript("renderDiagram(\(jsLiteral), \(isDark ? "true" : "false"), \(parent.fontScale));",
+            webView.evaluateJavaScript("renderDiagram(\(jsLiteral), \(isDark ? "true" : "false"), \(parent.fontScale), false, \(parent.useCLI));",
                                        completionHandler: nil)
         }
 

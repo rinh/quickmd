@@ -14,11 +14,17 @@
 <script src="mermaid.min.js"></script>
 <script>
   var resizeDiagram = null;
+  // mmdc answers asynchronously: a render that finishes after a newer one
+  // started (theme switch, zoom) must not overwrite it.
+  var renderGeneration = 0;
   window.addEventListener('resize', function() {
     if (resizeDiagram) resizeDiagram();
   });
 
-  function renderDiagram(source, isDark, scale = 1, fitWindow = false) {
+  // useCLI: the SVG comes from the reader's mmdc through the Swift `mmdc`
+  // reply handler (MermaidCLI.swift); if that fails, the bundled mermaid.js
+  // draws it instead. Everything after the SVG is the same for both.
+  function renderDiagram(source, isDark, scale = 1, fitWindow = false, useCLI = false) {
     // renderDiagram may run repeatedly on this page (theme switches re-render
     // in place). mermaid.render can leave its temp element behind after a
     // failed render — remove it or the next render throws on a duplicate id.
@@ -33,6 +39,7 @@
     });
 
     const container = document.getElementById('output');
+    const generation = ++renderGeneration;
     resizeDiagram = null;
     container.innerHTML = '';
 
@@ -48,8 +55,24 @@
       } catch (e) { /* no handler in this host -- fine */ }
     }
 
-    mermaid.render('diagram', source).then(function(result) {
-      container.innerHTML = result.svg;
+    function builtInSVG() {
+      return mermaid.render('diagram', source).then(function(result) { return result.svg; });
+    }
+    var svgText = builtInSVG;
+    if (useCLI && window.webkit && window.webkit.messageHandlers.mmdc) {
+      svgText = function() {
+        return window.webkit.messageHandlers.mmdc
+          .postMessage({ source: source, isDark: isDark })
+          .catch(function(err) {
+            console.log('mmdc failed, using mermaid.js: ' + err);
+            return builtInSVG();
+          });
+      };
+    }
+
+    svgText().then(function(svgMarkup) {
+      if (generation !== renderGeneration) return;
+      container.innerHTML = svgMarkup;
       const svg = container.querySelector('svg');
       const bounds = svg.viewBox.baseVal;
       const naturalWidth = bounds.width;
@@ -74,6 +97,7 @@
       };
       resizeDiagram();
     }).catch(function(err) {
+      if (generation !== renderGeneration) return;
       container.innerHTML = '<pre style="color:#e55;font-size:12px;padding:8px;">' +
         err.message.replace(/</g, '&lt;') + '</pre>';
       reportHeight();

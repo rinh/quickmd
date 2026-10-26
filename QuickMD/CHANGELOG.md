@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Reload** (⌘R, View ▸ Reload, or the ↻ button in the top-right cluster): re-reads the document from disk now and restarts the file watcher, for the times auto-reload does not notice a change (some network volumes and editors' save strategies). A toast says whether anything changed; a file that is gone shows the "File no longer exists" banner. Off while Source Edit shows, where the editor already follows the disk.
+- **Mermaid via mmdc** (fork only; Settings ▸ General ▸ Mermaid): draw diagrams with your installed mermaid-cli instead of the bundled mermaid.js, inline, in the zoom preview and in PDF export. mmdc is found through your login shell (nvm and Homebrew installs work) or a path you set; an optional `-c` config file is passed through. Results are cached; any failure falls back to the built-in renderer. This build is not sandboxed, which mmdc requires.
 
 ## [1.12.0] - 2026-10-05
 
