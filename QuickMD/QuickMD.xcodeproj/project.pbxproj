@@ -64,6 +64,7 @@
 		A1B2C3D401000031 /* MTLineFitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D400000035 /* MTLineFitter.swift */; };
 		A1B2C3D401000032 /* mermaid.min.js in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D400000036 /* mermaid.min.js */; };
 		A1B2C3D401000033 /* mermaid-template.html in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D400000037 /* mermaid-template.html */; };
+		A1B2C3D4010000F9 /* mermaid-layout-elk.min.js in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4000000F9 /* mermaid-layout-elk.min.js */; };
 		A1B2C3D401000034 /* mathFonts.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D400000038 /* mathFonts.bundle */; };
 		A1B2C3D401000036 /* CustomThemeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000003A /* CustomThemeStore.swift */; };
 		A1B2C3D401000037 /* RecentDocumentsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000003B /* RecentDocumentsStore.swift */; };
@@ -240,6 +241,7 @@
 		A1B2C3D400000035 /* MTLineFitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MTLineFitter.swift; sourceTree = "<group>"; };
 		A1B2C3D400000036 /* mermaid.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = mermaid.min.js; sourceTree = "<group>"; };
 		A1B2C3D400000037 /* mermaid-template.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "mermaid-template.html"; sourceTree = "<group>"; };
+		A1B2C3D4000000F9 /* mermaid-layout-elk.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "mermaid-layout-elk.min.js"; sourceTree = "<group>"; };
 		A1B2C3D400000038 /* mathFonts.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = mathFonts.bundle; sourceTree = "<group>"; };
 		A1B2C3D40000003A /* CustomThemeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomThemeStore.swift; sourceTree = "<group>"; };
 		A1B2C3D40000003B /* RecentDocumentsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentDocumentsStore.swift; sourceTree = "<group>"; };
@@ -451,6 +453,7 @@
 			children = (
 				A1B2C3D400000036 /* mermaid.min.js */,
 				A1B2C3D400000037 /* mermaid-template.html */,
+				A1B2C3D4000000F9 /* mermaid-layout-elk.min.js */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -545,6 +548,7 @@
 				A1B2C3D401000005 /* Assets.xcassets in Resources */,
 				A1B2C3D401000032 /* mermaid.min.js in Resources */,
 				A1B2C3D401000033 /* mermaid-template.html in Resources */,
+				A1B2C3D4010000F9 /* mermaid-layout-elk.min.js in Resources */,
 				A1B2C3D401000034 /* mathFonts.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

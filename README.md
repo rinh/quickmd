@@ -170,7 +170,7 @@ Now all your Markdown files will open instantly with QuickMD!
 
 ## Under the Hood
 
-- Swift 5.9, SwiftUI + AppKit, macOS 13.0+, Apple Silicon and Intel. Zero package dependencies: math rendering is vendored ([SwiftMath](https://github.com/mgriebling/SwiftMath)), [Mermaid.js](https://mermaid.js.org/) is bundled and runs offline
+- Swift 5.9, SwiftUI + AppKit, macOS 13.0+, Apple Silicon and Intel. Zero package dependencies: math rendering is vendored ([SwiftMath](https://github.com/mgriebling/SwiftMath)), [Mermaid.js](https://mermaid.js.org/) is bundled and runs offline (with the [ELK layout](https://mermaid.js.org/config/layouts.html) for diagrams that request `layout: elk`)
 - Its own Markdown parser (block-level, with a YAML frontmatter and reference-link pre-pass) and a single inline scanner shared by parser and renderer
 - Text is drawn by native `NSTextView`s hosted in a virtualized `NSTableView`; row heights are measured exactly, off the main thread, so scrolling and jumps stay exact on documents of any size
 - A per-document file watcher (`DispatchSource`) drives auto-reload, including editors that save atomically
