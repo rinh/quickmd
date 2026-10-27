@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Polished Mermaid style** (Settings ▸ General ▸ Mermaid, on by default): Mermaid's `base` theme with Tailwind colours — soft fills with a darker border of the same hue, slate text and lines, amber decisions, rounded corners, dashed subgraphs, a matching pie palette — with a dark variant. Applies inline, in the zoom preview and in PDF export. A diagram's own `%%{init}%%`, `classDef` and `style` still take precedence; turning it off restores Mermaid's default and dark themes.
 - **Mermaid ELK layout**: diagrams that ask for it (`layout: elk` in the front matter, `flowchart-elk`, or `"defaultRenderer": "elk"` in `%%{init}%%`) are now laid out with ELK instead of silently falling back to dagre, and `elk.*` options such as `nodePlacementStrategy` apply. Bundled offline (`@mermaid-js/layout-elk` 0.2.1 with elkjs) and loaded only by diagrams that mention elk, so every other diagram renders and loads as before.
 
+### Fixed
+- Tables: an escaped pipe (`\|`) no longer splits a cell. It shows as a literal `|`, inside inline code too (`` `--part 1\|2` `` reads `--part 1|2`), as GitHub renders it; before, the row gained a column and the code span broke apart.
+
 ## [1.12.0] - 2026-10-05
 
 Source Edit: QuickMD stays a viewer first, but you can now fix the Markdown you are reading without leaving the window. Asked for by [@KillSwitchSIG](https://github.com/KillSwitchSIG) (#31) and [@vinaymve](https://github.com/vinaymve) (#34).
