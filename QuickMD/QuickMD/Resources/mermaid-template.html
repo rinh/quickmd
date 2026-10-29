@@ -90,6 +90,10 @@
     };
     if (polished) {
       config.theme = 'base';
+      // Mermaid 12 defaults to the `neo` look, whose own node and cluster
+      // strokes override the palette above. A diagram can still ask for
+      // `look: neo` (or handDrawn) in its own config.
+      config.look = 'classic';
       config.themeVariables = isDark ? POLISHED_DARK : POLISHED_LIGHT;
       config.themeCSS = polishedCSS(isDark);
       config.flowchart = { curve: 'basis', padding: 16 };
@@ -99,31 +103,9 @@
       config.theme = isDark ? 'dark' : 'default';
       config.themeVariables = {};
       config.themeCSS = '';
+      config.look = 'neo';
     }
     return config;
-  }
-
-  // ELK layout (`layout: elk`, `flowchart-elk`, `defaultRenderer: "elk"`) is
-  // an external package since Mermaid 11. Without it Mermaid silently falls
-  // back to dagre. The bundle is 1.6 MB, so only pages whose source mentions
-  // elk load it; everything else renders exactly as before.
-  var elkReady = null;
-  function ensureLayouts(source) {
-    if (!/\belk\b/i.test(source)) return Promise.resolve();
-    if (!elkReady) {
-      elkReady = new Promise(function(resolve) {
-        var script = document.createElement('script');
-        script.src = 'mermaid-layout-elk.min.js';
-        script.onload = function() {
-          mermaid.registerLayoutLoaders(window.mermaidElkLayouts);
-          resolve();
-        };
-        // Missing bundle: render anyway, Mermaid falls back to dagre.
-        script.onerror = function() { resolve(); };
-        document.head.appendChild(script);
-      });
-    }
-    return elkReady;
   }
 
   function renderDiagram(source, isDark, scale = 1, fitWindow = false, polished = false) {
@@ -151,9 +133,7 @@
       } catch (e) { /* no handler in this host -- fine */ }
     }
 
-    ensureLayouts(source).then(function() {
-      return mermaid.render('diagram', source);
-    }).then(function(result) {
+    mermaid.render('diagram', source).then(function(result) {
       container.innerHTML = result.svg;
       const svg = container.querySelector('svg');
       const bounds = svg.viewBox.baseVal;
